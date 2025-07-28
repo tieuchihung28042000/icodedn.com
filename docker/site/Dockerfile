@@ -3,7 +3,7 @@ FROM python:3.10-slim
 # Cài đặt các gói cần thiết
 RUN apt-get update && apt-get install -y \
     git gcc g++ make python3-dev libxml2-dev libxslt1-dev zlib1g-dev gettext curl \
-    default-libmysqlclient-dev redis-server supervisor nginx netcat-openbsd \
+    default-libmysqlclient-dev redis-server supervisor netcat-openbsd \
     && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g sass postcss-cli postcss autoprefixer \
@@ -12,11 +12,8 @@ RUN apt-get update && apt-get install -y \
 # Tạo thư mục làm việc
 WORKDIR /app
 
-# Sao chép mã nguồn từ các thư mục
+# Sao chép mã nguồn từ thư mục dmoj-site
 COPY dmoj-site/ .
-COPY dmoj-frontend/resources/ ./resources/
-COPY dmoj-frontend/templates/ ./templates/
-COPY dmoj-frontend/websocket/ ./websocket/
 
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt

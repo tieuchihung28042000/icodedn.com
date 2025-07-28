@@ -13,7 +13,8 @@ fi
 # Đợi bridge sẵn sàng
 echo "Đang đợi bridge trên $BRIDGE_ADDRESS:$BRIDGE_PORT..."
 while ! nc -z $BRIDGE_ADDRESS $BRIDGE_PORT; do
-  sleep 1
+  sleep 2
+  echo "Đang thử kết nối lại với $BRIDGE_ADDRESS:$BRIDGE_PORT..."
 done
 echo "Bridge đã sẵn sàng!"
 

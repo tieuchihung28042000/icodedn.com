@@ -10,7 +10,7 @@ echo "Database đã sẵn sàng!"
 
 # Tạo time zone data
 echo "Cập nhật time zone data..."
-mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} mysql
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -h ${MYSQL_HOST} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} mysql || echo "Không thể cập nhật time zone data, tiếp tục..."
 
 # Chuẩn bị static files
 echo "Thu thập static files..."

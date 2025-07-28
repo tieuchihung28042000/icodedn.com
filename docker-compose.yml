@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mariadb:latest
@@ -12,12 +10,22 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:latest
     restart: always
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   site:
     build:
@@ -25,8 +33,10 @@ services:
       dockerfile: ./docker/site/Dockerfile
     restart: always
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./problems:/problems
       - site_static:/app/static
@@ -41,6 +51,12 @@ services:
       - VIRTUAL_PORT=8000
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   bridged:
     build:
@@ -48,9 +64,12 @@ services:
       dockerfile: ./docker/site/Dockerfile
     restart: always
     depends_on:
-      - site
-      - db
-      - redis
+      site:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     command: python manage.py runbridged
     volumes:
       - ./problems:/problems
@@ -60,6 +79,8 @@ services:
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
+    ports:
+      - "9999:9999"
 
   celery:
     build:
@@ -67,9 +88,12 @@ services:
       dockerfile: ./docker/site/Dockerfile
     restart: always
     depends_on:
-      - site
-      - db
-      - redis
+      site:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     command: celery -A dmoj_celery worker
     volumes:
       - ./problems:/problems
@@ -86,7 +110,8 @@ services:
       dockerfile: ./docker/site/Dockerfile
     restart: always
     depends_on:
-      - site
+      site:
+        condition: service_healthy
     command: node websocket/daemon.js
     environment:
       - MYSQL_HOST=db
@@ -94,6 +119,10 @@ services:
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
+    ports:
+      - "15100:15100"
+      - "15101:15101"
+      - "15102:15102"
 
   judge:
     build:
@@ -101,13 +130,14 @@ services:
       dockerfile: ./docker/judge/Dockerfile
     restart: always
     depends_on:
-      - site
+      bridged:
+        condition: service_started
     volumes:
       - ./problems:/problems
     environment:
       - JUDGE_NAME=judge1
       - JUDGE_KEY=verysecretkey
-      - BRIDGE_ADDRESS=site
+      - BRIDGE_ADDRESS=bridged
       - BRIDGE_PORT=9999
     cap_add:
       - SYS_PTRACE
