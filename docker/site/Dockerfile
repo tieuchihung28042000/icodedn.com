@@ -16,19 +16,12 @@ WORKDIR /app
 # Tạo thư mục cho dmoj và các file tĩnh
 RUN mkdir -p /app/dmoj /app/static /app/media
 
-# Sao chép file cấu hình trước
-COPY docker/site/entrypoint.sh /app/
-COPY docker/site/uwsgi.ini /app/
-COPY docker/site/local_settings.py /app/dmoj/
-
-# Phân quyền cho entrypoint
-RUN chmod +x /app/entrypoint.sh
-
 # Sao chép mã nguồn từ thư mục dmoj-site
 COPY dmoj-site/ .
 
-# Đảm bảo file cấu hình vẫn còn sau khi copy mã nguồn
+# Sao chép file cấu hình
 COPY docker/site/local_settings.py /app/dmoj/
+COPY docker/site/uwsgi.ini /app/
 
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt
@@ -53,8 +46,10 @@ RUN echo 'module.exports = { \
 # Biên dịch tài nguyên tĩnh
 RUN ./make_style.sh
 
-# Mở cổng
-EXPOSE 8000 9999 15100 15101 15102
+# Thu thập static files và biên dịch translations
+RUN python manage.py collectstatic --noinput || echo "Không thể thu thập static files, tiếp tục..."
+RUN python manage.py compilemessages || echo "Không thể biên dịch messages, tiếp tục..."
+RUN python manage.py compilejsi18n || echo "Không thể biên dịch jsi18n, tiếp tục..."
 
-# Khởi chạy
-ENTRYPOINT ["/app/entrypoint.sh"] 
+# Mở cổng
+EXPOSE 8000 9999 15100 15101 15102 
