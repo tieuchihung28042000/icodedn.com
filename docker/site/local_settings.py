@@ -1,12 +1,14 @@
 import os
 from django.utils.translation import gettext_lazy as _
 
-# Cấu hình bảo mật
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dmoj_docker_secret_key_change_in_production')
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
-# Cấu hình cơ sở dữ liệu
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -21,7 +23,7 @@ DATABASES = {
     }
 }
 
-# Cấu hình Redis và Celery
+# Caches and sessions
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -34,37 +36,54 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
-# Cấu hình Celery
+# Celery
 CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
 CELERY_RESULT_BACKEND = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
 
-# Cấu hình email
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Cấu hình ngôn ngữ
+# Internationalization
 LANGUAGE_CODE = 'vi'
 DEFAULT_USER_TIME_ZONE = 'Asia/Ho_Chi_Minh'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Cấu hình tệp tĩnh
+# Static files
 STATIC_ROOT = '/app/static'
 STATIC_URL = '/static/'
 MEDIA_ROOT = '/app/media'
 MEDIA_URL = '/media/'
 
-# Cấu hình event server
+# django-compressor settings
+COMPRESS_OUTPUT_DIR = 'cache'
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+    'compressor.filters.cssmin.CSSMinFilter',
+]
+COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
+COMPRESS_STORAGE = 'compressor.storage.GzipCompressorFileStorage'
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+COMPRESS_ROOT = STATIC_ROOT
+
+# DMOJ site display settings
+SITE_NAME = 'ICODEDN'
+SITE_LONG_NAME = 'ICODEDN: Modern Online Judge'
+SITE_ADMIN_EMAIL = 'admin@icodedn.com'
+
+# Bridge settings
+BRIDGED_JUDGE_ADDRESS = [('bridged', 9999)]
+BRIDGED_DJANGO_ADDRESS = [('site', 9998)]
+BRIDGED_DJANGO_CONNECT = True
+
+# Event server
 EVENT_DAEMON_USE = True
 EVENT_DAEMON_POST = 'http://localhost:15101/'
 EVENT_DAEMON_GET = 'http://localhost:15100/'
 EVENT_DAEMON_POLL = 'http://localhost:15102/channels/'
 EVENT_DAEMON_KEY = 'event_daemon_key'
 
-# Cấu hình kết nối judge
-BRIDGED_JUDGE_ADDRESS = [('bridged', 9999)]
-BRIDGED_DJANGO_ADDRESS = [('site', 9998)]
-BRIDGED_DJANGO_CONNECT = True
-
-# Cấu hình thư mục bài tập
+# Problem data
 DMOJ_PROBLEM_DATA_ROOT = '/problems/' 
