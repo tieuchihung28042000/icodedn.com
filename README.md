@@ -30,7 +30,7 @@
 
 3. Khởi động các container:
    ```
-   docker-compose up -d
+   docker compose up -d
    ```
 
 4. Truy cập trang web:
@@ -108,9 +108,9 @@ docker exec -i dmoj-db mysql -u dmoj -pdmojpass dmoj < backup.sql
 
 2. Rebuild và khởi động lại các container:
    ```
-   docker-compose down
-   docker-compose build
-   docker-compose up -d
+   docker compose down
+   docker compose build
+   docker compose up -d
    ```
 
 ## Gỡ lỗi
@@ -118,15 +118,15 @@ docker exec -i dmoj-db mysql -u dmoj -pdmojpass dmoj < backup.sql
 ### Xem logs
 
 ```
-docker-compose logs -f site
-docker-compose logs -f judge
-docker-compose logs -f bridged
-docker-compose logs -f celery
+docker compose logs -f site
+docker compose logs -f judge
+docker compose logs -f bridged
+docker compose logs -f celery
 ```
 
 ### Truy cập shell
 
 ```
-docker-compose exec site bash
-docker-compose exec judge bash
+docker compose exec site bash
+docker compose exec judge bash
 ``` 

@@ -5,7 +5,7 @@
 
 # Docker
 .docker
-docker-compose.yml
+compose.yml
 Dockerfile
 .dockerignore
 
