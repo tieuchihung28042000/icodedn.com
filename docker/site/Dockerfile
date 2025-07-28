@@ -26,8 +26,9 @@ COPY dmoj-site/ .
 COPY docker/site/local_settings.py /app/dmoj/
 COPY docker/site/uwsgi.ini /app/
 
-# Loại bỏ django-compressor từ requirements.txt
-RUN sed -i '/django-compressor/d' requirements.txt
+# Sửa đổi cài đặt Django trong settings.py
+RUN sed -i "s/'compressor',/# 'compressor',/g" dmoj/settings.py && \
+    sed -i "s/'compressor.contrib.jinja2ext.CompressorExtension',/# 'compressor.contrib.jinja2ext.CompressorExtension',/g" dmoj/settings.py
 
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt
@@ -58,7 +59,7 @@ RUN python manage.py compilemessages || echo "Không thể biên dịch messages
 RUN python manage.py compilejsi18n || echo "Không thể biên dịch jsi18n, tiếp tục..."
 
 # Mở cổng
-EXPOSE 8000 9999 15100 15101 15102 
+EXPOSE 8000 9999 15100 15101 15102
 
 # Thiết lập PYTHONPATH để tải patch_compressor.py trước khi Django khởi động
 ENV PYTHONPATH=/app 
