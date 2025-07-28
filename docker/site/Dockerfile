@@ -13,8 +13,22 @@ RUN apt-get update && apt-get install -y \
 # Tạo thư mục làm việc
 WORKDIR /app
 
+# Tạo thư mục cho dmoj và các file tĩnh
+RUN mkdir -p /app/dmoj /app/static /app/media
+
+# Sao chép file cấu hình trước
+COPY docker/site/entrypoint.sh /app/
+COPY docker/site/uwsgi.ini /app/
+COPY docker/site/local_settings.py /app/dmoj/
+
+# Phân quyền cho entrypoint
+RUN chmod +x /app/entrypoint.sh
+
 # Sao chép mã nguồn từ thư mục dmoj-site
 COPY dmoj-site/ .
+
+# Đảm bảo file cấu hình vẫn còn sau khi copy mã nguồn
+COPY docker/site/local_settings.py /app/dmoj/
 
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt
@@ -38,17 +52,6 @@ RUN echo 'module.exports = { \
 
 # Biên dịch tài nguyên tĩnh
 RUN ./make_style.sh
-
-# Tạo thư mục cho tệp tĩnh và media
-RUN mkdir -p /app/static /app/media
-
-# Sao chép file cấu hình
-COPY docker/site/local_settings.py dmoj/local_settings.py
-COPY docker/site/uwsgi.ini .
-COPY docker/site/entrypoint.sh .
-
-# Phân quyền cho entrypoint
-RUN chmod +x entrypoint.sh
 
 # Mở cổng
 EXPOSE 8000 9999 15100 15101 15102
