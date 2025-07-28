@@ -26,6 +26,9 @@ COPY dmoj-site/ .
 COPY docker/site/local_settings.py /app/dmoj/
 COPY docker/site/uwsgi.ini /app/
 
+# Loại bỏ django-compressor từ requirements.txt
+RUN sed -i '/django-compressor/d' requirements.txt
+
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt
 RUN MYSQLCLIENT_CFLAGS="-I/usr/include/mariadb" MYSQLCLIENT_LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lmariadb" pip install --no-cache-dir mysqlclient
