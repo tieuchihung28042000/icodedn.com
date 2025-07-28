@@ -1,14 +1,59 @@
 import os
+import sys
 from django.utils.translation import gettext_lazy as _
+
+# Vô hiệu hóa compressor trước khi bất kỳ import nào khác
+import types
+import sys
+
+# Tạo một module giả để thay thế compressor
+fake_compressor = types.ModuleType("compressor")
+fake_compressor.__path__ = []
+sys.modules["compressor"] = fake_compressor
+
+# Tạo các submodule cần thiết
+fake_templatetags = types.ModuleType("compressor.templatetags")
+sys.modules["compressor.templatetags"] = fake_templatetags
+
+fake_contrib = types.ModuleType("compressor.contrib")
+sys.modules["compressor.contrib"] = fake_contrib
+
+fake_jinja2ext = types.ModuleType("compressor.contrib.jinja2ext")
+sys.modules["compressor.contrib.jinja2ext"] = fake_jinja2ext
+
+# Tạo các hàm giả
+class DummyCompressNode:
+    def __init__(self, *args, **kwargs):
+        pass
+    
+    def render(self, context):
+        return ""
+
+fake_templatetags.compress = types.ModuleType("compressor.templatetags.compress")
+sys.modules["compressor.templatetags.compress"] = fake_templatetags.compress
+fake_templatetags.compress.CompressNode = DummyCompressNode
 
 # Cấu hình bảo mật
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dmoj_docker_secret_key_change_in_production')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
-# Loại bỏ compressor khỏi INSTALLED_APPS nếu biến môi trường được đặt
-if os.environ.get('DMOJ_DISABLE_DJANGO_COMPRESSOR', 'False') == 'True':
-    INSTALLED_APPS = list(filter(lambda app: app != 'compressor', INSTALLED_APPS))
+# Loại bỏ compressor khỏi INSTALLED_APPS
+def remove_compressor_from_installed_apps():
+    from django.conf import settings
+    if hasattr(settings, 'INSTALLED_APPS'):
+        settings.INSTALLED_APPS = tuple(app for app in settings.INSTALLED_APPS if app != 'compressor')
+
+# Gọi hàm sau khi settings được load
+import django.conf
+original_settings_setup = django.conf.settings._setup
+
+def patched_settings_setup():
+    result = original_settings_setup()
+    remove_compressor_from_installed_apps()
+    return result
+
+django.conf.settings._setup = patched_settings_setup
 
 # Cấu hình cơ sở dữ liệu
 DATABASES = {
