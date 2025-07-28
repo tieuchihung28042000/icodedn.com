@@ -49,6 +49,7 @@ services:
       - REDIS_HOST=redis
       - VIRTUAL_HOST=icodedn.com
       - VIRTUAL_PORT=8000
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
     ports:
       - "8000:8000"
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
@@ -76,6 +77,7 @@ services:
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
     ports:
       - "9999:9999"
 
@@ -96,6 +98,7 @@ services:
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
 
   wsevent:
     build:
@@ -112,6 +115,7 @@ services:
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
     ports:
       - "15100:15100"
       - "15101:15101"

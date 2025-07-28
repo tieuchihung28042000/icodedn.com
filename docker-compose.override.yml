@@ -2,6 +2,7 @@ services:
   site:
     environment:
       - DEBUG=True
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
     volumes:
       - ./dmoj-site:/app
     ports:
@@ -16,14 +17,20 @@ services:
   bridged:
     volumes:
       - ./dmoj-site:/app
+    environment:
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
 
   celery:
     volumes:
       - ./dmoj-site:/app
+    environment:
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
 
   wsevent:
     volumes:
       - ./dmoj-site:/app
+    environment:
+      - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
     ports:
       - "15100:15100"
       - "15101:15101"

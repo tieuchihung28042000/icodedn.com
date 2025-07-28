@@ -6,6 +6,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'dmoj_docker_secret_key_change_in_prod
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
+# Loại bỏ compressor khỏi INSTALLED_APPS nếu biến môi trường được đặt
+if os.environ.get('DMOJ_DISABLE_DJANGO_COMPRESSOR', 'False') == 'True':
+    INSTALLED_APPS = list(filter(lambda app: app != 'compressor', INSTALLED_APPS))
+
 # Cấu hình cơ sở dữ liệu
 DATABASES = {
     'default': {
