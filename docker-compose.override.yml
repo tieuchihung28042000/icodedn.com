@@ -29,5 +29,6 @@ services:
       - "15102:15102"
 
   judge:
-    volumes:
-      - ./dmoj-judge:/judge 
+    build:
+      args:
+        - CACHEBUST=${RANDOM} 

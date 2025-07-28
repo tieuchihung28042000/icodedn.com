@@ -120,6 +120,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/judge/Dockerfile
+      args:
+        - CACHEBUST=1
     image: dmoj-judge:latest
     restart: always
     depends_on:
