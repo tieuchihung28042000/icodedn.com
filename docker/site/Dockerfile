@@ -3,7 +3,8 @@ FROM python:3.10-slim
 # Cài đặt các gói cần thiết
 RUN apt-get update && apt-get install -y \
     git gcc g++ make python3-dev libxml2-dev libxslt1-dev zlib1g-dev gettext curl \
-    default-libmysqlclient-dev redis-server supervisor netcat-openbsd \
+    default-libmysqlclient-dev redis-server supervisor netcat-openbsd pkg-config \
+    libmariadb-dev mariadb-client \
     && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g sass postcss-cli postcss autoprefixer \

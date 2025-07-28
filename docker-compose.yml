@@ -66,10 +66,6 @@ services:
     depends_on:
       site:
         condition: service_healthy
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     command: python manage.py runbridged
     volumes:
       - ./problems:/problems
@@ -89,10 +85,6 @@ services:
     restart: always
     depends_on:
       site:
-        condition: service_healthy
-      db:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     command: celery -A dmoj_celery worker
     volumes:

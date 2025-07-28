@@ -14,12 +14,12 @@ mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -h ${MYSQL_HOST} -u ${MYSQL_USER
 
 # Chuẩn bị static files
 echo "Thu thập static files..."
-python manage.py collectstatic --noinput
+python manage.py collectstatic --noinput || echo "Không thể thu thập static files, tiếp tục..."
 
 # Chuẩn bị translations
 echo "Biên dịch translations..."
-python manage.py compilemessages
-python manage.py compilejsi18n
+python manage.py compilemessages || echo "Không thể biên dịch messages, tiếp tục..."
+python manage.py compilejsi18n || echo "Không thể biên dịch jsi18n, tiếp tục..."
 
 # Chạy migrations
 echo "Chạy migrations..."
