@@ -22,7 +22,8 @@ COPY dmoj-site/ .
 # Sửa đổi settings.py để vô hiệu hóa django-compressor
 RUN sed -i "s/'compressor',/# 'compressor',/g" dmoj/settings.py && \
     sed -i "s/'compressor.contrib.jinja2ext.CompressorExtension',/# 'compressor.contrib.jinja2ext.CompressorExtension',/g" dmoj/settings.py && \
-    sed -i "s/django_compressor>=3/#django_compressor>=3/g" requirements.txt
+    sed -i "s/django_compressor>=3/#django_compressor>=3/g" requirements.txt && \
+    sed -i "s/STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)/# STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)/g" dmoj/settings.py
 
 # Sao chép file cấu hình
 COPY docker/site/local_settings.py /app/dmoj/
