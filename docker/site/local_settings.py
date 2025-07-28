@@ -54,9 +54,15 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = '/app/media'
 MEDIA_URL = '/media/'
 
-# Cấu hình django-compressor
+# Vô hiệu hóa django-compressor
+COMPRESS_ENABLED = False
+COMPRESS_PRECOMPILERS = ()
+COMPRESS_FILTERS = {}
 COMPRESS_ROOT = '/app/static'
-COMPRESS_ENABLED = True
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 # Cấu hình event server
 EVENT_DAEMON_USE = True
@@ -71,18 +77,4 @@ BRIDGED_DJANGO_ADDRESS = [('site', 9998)]
 BRIDGED_DJANGO_CONNECT = True
 
 # Cấu hình thư mục bài tập
-DMOJ_PROBLEM_DATA_ROOT = '/problems/'
-
-# Cấu hình nén
-COMPRESS_OUTPUT_DIR = 'cache'
-COMPRESS_CSS_FILTERS = [
-    'compressor.filters.css_default.CssAbsoluteFilter',
-    'compressor.filters.cssmin.CSSMinFilter',
-]
-COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
-COMPRESS_STORAGE = 'compressor.storage.GzipCompressorFileStorage'
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
-) 
+DMOJ_PROBLEM_DATA_ROOT = '/problems/' 
