@@ -31,4 +31,4 @@ services:
   judge:
     build:
       args:
-        - CACHEBUST=${RANDOM} 
+        CACHEBUST: "${RANDOM:-1}" 

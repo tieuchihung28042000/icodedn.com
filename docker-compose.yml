@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:latest
+    image: mariadb:10.11
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: dmojroot
@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: dmojpass
     volumes:
       - db_data:/var/lib/mysql
-    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -121,7 +121,7 @@ services:
       context: .
       dockerfile: ./docker/judge/Dockerfile
       args:
-        - CACHEBUST=1
+        CACHEBUST: "${RANDOM:-1}"
     image: dmoj-judge:latest
     restart: always
     depends_on:
