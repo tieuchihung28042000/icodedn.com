@@ -50,6 +50,8 @@ services:
       - VIRTUAL_HOST=icodedn.com
       - VIRTUAL_PORT=8000
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONPATH=/app
+      - PYTHONSTARTUP=/app/patch_compressor.py
     ports:
       - "8000:8000"
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
@@ -78,6 +80,8 @@ services:
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONPATH=/app
+      - PYTHONSTARTUP=/app/patch_compressor.py
     ports:
       - "9999:9999"
 
@@ -99,6 +103,8 @@ services:
       - MYSQL_PASSWORD=dmojpass
       - REDIS_HOST=redis
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONPATH=/app
+      - PYTHONSTARTUP=/app/patch_compressor.py
 
   wsevent:
     build:

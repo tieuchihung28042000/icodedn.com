@@ -3,6 +3,7 @@ services:
     environment:
       - DEBUG=True
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONSTARTUP=/app/patch_compressor.py
     volumes:
       - ./dmoj-site:/app
     ports:
@@ -19,12 +20,14 @@ services:
       - ./dmoj-site:/app
     environment:
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONSTARTUP=/app/patch_compressor.py
 
   celery:
     volumes:
       - ./dmoj-site:/app
     environment:
       - DMOJ_DISABLE_DJANGO_COMPRESSOR=True
+      - PYTHONSTARTUP=/app/patch_compressor.py
 
   wsevent:
     volumes:
