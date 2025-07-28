@@ -50,7 +50,13 @@ USE_TZ = True
 
 # Cấu hình tệp tĩnh
 STATIC_ROOT = '/app/static'
+STATIC_URL = '/static/'
 MEDIA_ROOT = '/app/media'
+MEDIA_URL = '/media/'
+
+# Cấu hình django-compressor
+COMPRESS_ROOT = '/app/static'
+COMPRESS_ENABLED = True
 
 # Cấu hình event server
 EVENT_DAEMON_USE = True
