@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  site:
+    environment:
+      - DEBUG=True
+    volumes:
+      - ./dmoj-site:/app
+      - ./dmoj-frontend/resources:/app/resources
+      - ./dmoj-frontend/templates:/app/templates
+      - ./dmoj-frontend/websocket:/app/websocket
+    ports:
+      - "8000:8000"
+      - "9998:9998"
+      - "9999:9999"
+      - "15100:15100"
+      - "15101:15101"
+      - "15102:15102"
+
+  bridged:
+    volumes:
+      - ./dmoj-site:/app
+      - ./dmoj-frontend/resources:/app/resources
+      - ./dmoj-frontend/templates:/app/templates
+      - ./dmoj-frontend/websocket:/app/websocket
+
+  celery:
+    volumes:
+      - ./dmoj-site:/app
+      - ./dmoj-frontend/resources:/app/resources
+      - ./dmoj-frontend/templates:/app/templates
+      - ./dmoj-frontend/websocket:/app/websocket
+
+  wsevent:
+    volumes:
+      - ./dmoj-site:/app
+      - ./dmoj-frontend/resources:/app/resources
+      - ./dmoj-frontend/templates:/app/templates
+      - ./dmoj-frontend/websocket:/app/websocket
+    ports:
+      - "15100:15100"
+      - "15101:15101"
+      - "15102:15102"
+
+  judge:
+    volumes:
+      - ./dmoj-judge:/judge 

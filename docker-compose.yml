@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: dmojroot
+      MYSQL_DATABASE: dmoj
+      MYSQL_USER: dmoj
+      MYSQL_PASSWORD: dmojpass
+    volumes:
+      - db_data:/var/lib/mysql
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_general_ci']
+
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  site:
+    build:
+      context: .
+      dockerfile: ./docker/site/Dockerfile
+    restart: always
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./problems:/problems
+      - site_static:/app/static
+      - site_media:/app/media
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=dmoj
+      - MYSQL_USER=dmoj
+      - MYSQL_PASSWORD=dmojpass
+      - REDIS_HOST=redis
+      - VIRTUAL_HOST=icodedn.com
+      - VIRTUAL_PORT=8000
+    ports:
+      - "8000:8000"
+
+  bridged:
+    build:
+      context: .
+      dockerfile: ./docker/site/Dockerfile
+    restart: always
+    depends_on:
+      - site
+      - db
+      - redis
+    command: python manage.py runbridged
+    volumes:
+      - ./problems:/problems
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=dmoj
+      - MYSQL_USER=dmoj
+      - MYSQL_PASSWORD=dmojpass
+      - REDIS_HOST=redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: ./docker/site/Dockerfile
+    restart: always
+    depends_on:
+      - site
+      - db
+      - redis
+    command: celery -A dmoj_celery worker
+    volumes:
+      - ./problems:/problems
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=dmoj
+      - MYSQL_USER=dmoj
+      - MYSQL_PASSWORD=dmojpass
+      - REDIS_HOST=redis
+
+  wsevent:
+    build:
+      context: .
+      dockerfile: ./docker/site/Dockerfile
+    restart: always
+    depends_on:
+      - site
+    command: node websocket/daemon.js
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=dmoj
+      - MYSQL_USER=dmoj
+      - MYSQL_PASSWORD=dmojpass
+      - REDIS_HOST=redis
+
+  judge:
+    build:
+      context: .
+      dockerfile: ./docker/judge/Dockerfile
+    restart: always
+    depends_on:
+      - site
+    volumes:
+      - ./problems:/problems
+    environment:
+      - JUDGE_NAME=judge1
+      - JUDGE_KEY=verysecretkey
+      - BRIDGE_ADDRESS=site
+      - BRIDGE_PORT=9999
+    cap_add:
+      - SYS_PTRACE
+
+volumes:
+  db_data:
+  redis_data:
+  site_static:
+  site_media: 

@@ -1,0 +1,47 @@
+id: judge1
+key: verysecretkey
+problem_storage_globs:
+  - /problems/*
+
+runtime:
+  ccl: /opt/ccl/lx86cl
+  sed: /bin/sed
+  awk: /usr/bin/awk
+  gnatmake: /usr/bin/gnatmake
+  chicken-csc: /usr/bin/csc
+  dart: /opt/dart-sdk/bin/dart
+  tclsh: /usr/bin/tclsh
+  cobc: /usr/bin/cobc
+  erl: /usr/bin/erl
+  erlc: /usr/bin/erlc
+  node: /usr/bin/node
+  lua: /usr/bin/lua
+  ocaml: /usr/bin/ocamlopt
+  ghc: /usr/bin/ghc
+  go: /usr/bin/go
+  fsharpc: /usr/bin/fsharpc
+  mono-csc: /usr/bin/mono-csc
+  mono-vbnc: /usr/bin/vbnc
+  mono: /usr/bin/mono
+  dmd: /usr/bin/dmd
+  fpc: /usr/bin/fpc
+  clang: /usr/bin/clang
+  clang++: /usr/bin/clang++
+  gcc: /usr/bin/gcc
+  g++: /usr/bin/g++
+  g++11: /usr/bin/g++
+  gfortran: /usr/bin/gfortran
+  nasm: /usr/bin/nasm
+  ld: /usr/bin/ld
+  python: /usr/bin/python
+  python3: /usr/bin/python3
+  java: /usr/bin/java
+  javac: /usr/bin/javac
+  php: /usr/bin/php
+  perl: /usr/bin/perl
+  ruby: /usr/bin/ruby
+  racket: /usr/bin/racket
+  raco: /usr/bin/raco
+  gnustep-config: /usr/bin/gnustep-config
+  gobjc: /usr/bin/gcc
+  zig: /opt/zig/zig 
