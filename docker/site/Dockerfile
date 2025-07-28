@@ -19,6 +19,10 @@ RUN mkdir -p /app/dmoj /app/static /app/media
 # Sao chép mã nguồn từ thư mục dmoj-site
 COPY dmoj-site/ .
 
+# Sửa đổi settings.py để vô hiệu hóa django-compressor
+RUN sed -i "s/'compressor',/# 'compressor',/g" dmoj/settings.py && \
+    sed -i "s/'compressor.contrib.jinja2ext.CompressorExtension',/# 'compressor.contrib.jinja2ext.CompressorExtension',/g" dmoj/settings.py
+
 # Sao chép file cấu hình
 COPY docker/site/local_settings.py /app/dmoj/
 COPY docker/site/uwsgi.ini /app/
@@ -50,7 +54,6 @@ RUN ./make_style.sh
 RUN python manage.py collectstatic --noinput || echo "Không thể thu thập static files, tiếp tục..."
 RUN python manage.py compilemessages || echo "Không thể biên dịch messages, tiếp tục..."
 RUN python manage.py compilejsi18n || echo "Không thể biên dịch jsi18n, tiếp tục..."
-RUN python manage.py compress || echo "Không thể nén static files, tiếp tục..."
 
 # Mở cổng
 EXPOSE 8000 9999 15100 15101 15102 

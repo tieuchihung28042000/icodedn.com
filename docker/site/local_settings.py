@@ -56,18 +56,6 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = '/app/media'
 MEDIA_URL = '/media/'
 
-# django-compressor settings
-COMPRESS_OUTPUT_DIR = 'cache'
-COMPRESS_CSS_FILTERS = [
-    'compressor.filters.css_default.CssAbsoluteFilter',
-    'compressor.filters.cssmin.CSSMinFilter',
-]
-COMPRESS_JS_FILTERS = ['compressor.filters.jsmin.JSMinFilter']
-COMPRESS_STORAGE = 'compressor.storage.GzipCompressorFileStorage'
-COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
-COMPRESS_ROOT = STATIC_ROOT
-
 # DMOJ site display settings
 SITE_NAME = 'ICODEDN'
 SITE_LONG_NAME = 'ICODEDN: Modern Online Judge'
