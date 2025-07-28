@@ -120,6 +120,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/judge/Dockerfile
+    image: dmoj-judge:latest
     restart: always
     depends_on:
       bridged:

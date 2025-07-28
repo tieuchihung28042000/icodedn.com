@@ -1,9 +1,13 @@
-FROM dmoj/runtimes-tier3:latest
+FROM dmoj/runtimes-tier1:latest
 
 # Cài đặt các gói cần thiết
 RUN apt-get update && apt-get install -y \
     python3-dev python3-pip build-essential libseccomp-dev netcat-openbsd pkg-config \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Tạo môi trường ảo để tránh lỗi PEP 668
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
 
 # Cài đặt DMOJ judge
 COPY dmoj-judge/ /judge/

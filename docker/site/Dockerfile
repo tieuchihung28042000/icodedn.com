@@ -18,7 +18,8 @@ COPY dmoj-site/ .
 
 # Cài đặt các phụ thuộc Python
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir mysqlclient uwsgi
+RUN MYSQLCLIENT_CFLAGS="-I/usr/include/mariadb" MYSQLCLIENT_LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lmariadb" pip install --no-cache-dir mysqlclient
+RUN pip install --no-cache-dir uwsgi
 
 # Cài đặt các phụ thuộc Node.js
 RUN cd websocket && npm install qu ws simplesets
