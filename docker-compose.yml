@@ -51,7 +51,7 @@ services:
       - VIRTUAL_PORT=8000
     ports:
       - "8000:8000"
-    command: ["uwsgi", "--ini", "/app/uwsgi.ini"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s

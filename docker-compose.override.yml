@@ -11,7 +11,7 @@ services:
       - "15100:15100"
       - "15101:15101"
       - "15102:15102"
-    command: ["uwsgi", "--ini", "/app/uwsgi.ini"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
   bridged:
     volumes:
