@@ -37,115 +37,39 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./problems:/problems
-      - site_static:/app/static
-      - site_media:/app/media
     environment:
-      - MYSQL_HOST=db
       - MYSQL_DATABASE=dmoj
       - MYSQL_USER=dmoj
       - MYSQL_PASSWORD=dmojpass
+      - MYSQL_HOST=db
       - REDIS_HOST=redis
-      - VIRTUAL_HOST=icodedn.com
-      - VIRTUAL_PORT=8000
-      - PYTHONSTARTUP=/app/patch_compressor.py
+      - DMOJ_IN_DOCKER=1
+    volumes:
+      - ./dmoj-site:/app
+      - static:/app/static
+      - media:/app/media
     ports:
       - "8000:8000"
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  bridged:
-    build:
-      context: .
-      dockerfile: ./docker/site/Dockerfile
-    restart: always
-    depends_on:
-      site:
-        condition: service_healthy
-    command: python manage.py runbridged
-    volumes:
-      - ./problems:/problems
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_DATABASE=dmoj
-      - MYSQL_USER=dmoj
-      - MYSQL_PASSWORD=dmojpass
-      - REDIS_HOST=redis
-      - PYTHONSTARTUP=/app/patch_compressor.py
-    ports:
-      - "9999:9999"
-
-  celery:
-    build:
-      context: .
-      dockerfile: ./docker/site/Dockerfile
-    restart: always
-    depends_on:
-      site:
-        condition: service_healthy
-    command: celery -A dmoj_celery worker
-    volumes:
-      - ./problems:/problems
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_DATABASE=dmoj
-      - MYSQL_USER=dmoj
-      - MYSQL_PASSWORD=dmojpass
-      - REDIS_HOST=redis
-      - PYTHONSTARTUP=/app/patch_compressor.py
-
-  wsevent:
-    build:
-      context: .
-      dockerfile: ./docker/site/Dockerfile
-    restart: always
-    depends_on:
-      site:
-        condition: service_healthy
-    command: node websocket/daemon.js
-    environment:
-      - MYSQL_HOST=db
-      - MYSQL_DATABASE=dmoj
-      - MYSQL_USER=dmoj
-      - MYSQL_PASSWORD=dmojpass
-      - REDIS_HOST=redis
-      - PYTHONSTARTUP=/app/patch_compressor.py
-    ports:
-      - "15100:15100"
-      - "15101:15101"
-      - "15102:15102"
 
   judge:
     build:
       context: .
       dockerfile: ./docker/judge/Dockerfile
-      args:
-        CACHEBUST: "${RANDOM:-1}"
-    image: dmoj-judge:latest
     restart: always
     depends_on:
-      bridged:
-        condition: service_started
-    volumes:
-      - ./problems:/problems
+      - site
     environment:
       - JUDGE_NAME=judge1
       - JUDGE_KEY=verysecretkey
-      - BRIDGE_ADDRESS=bridged
+      - BRIDGE_ADDRESS=site
       - BRIDGE_PORT=9999
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - seccomp=unconfined
+    volumes:
+      - ./problems:/problems
+    networks:
+      - default
 
 volumes:
   db_data:
   redis_data:
-  site_static:
-  site_media: 
+  static:
+  media: 

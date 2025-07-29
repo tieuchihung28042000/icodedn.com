@@ -1,13 +1,10 @@
 FROM python:3.10-slim
 
-# Cài đặt các gói cần thiết
+# Cài đặt các gói cần thiết cơ bản
 RUN apt-get update && apt-get install -y \
     git gcc g++ make python3-dev libxml2-dev libxslt1-dev zlib1g-dev gettext curl \
-    default-libmysqlclient-dev redis-server supervisor netcat-openbsd pkg-config \
+    default-libmysqlclient-dev netcat-openbsd pkg-config \
     libmariadb-dev mariadb-client \
-    && curl -sL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g sass postcss-cli postcss autoprefixer \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Tạo thư mục làm việc
@@ -19,49 +16,35 @@ RUN mkdir -p /app/dmoj /app/static /app/media
 # Sao chép mã nguồn từ thư mục dmoj-site
 COPY dmoj-site/ .
 
-# Sửa đổi settings.py để vô hiệu hóa django-compressor
+# Cài đặt các tool frontend cần thiết cho make_style.sh
+RUN apt-get update && apt-get install -y npm && \
+    npm install -g sass postcss-cli autoprefixer && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Cài đặt các dependencies Python từ requirements.txt của dmoj-site
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir pymoss
+
+# Vô hiệu hóa compressor trong settings.py và jinja2 extension
 RUN sed -i "s/'compressor',/# 'compressor',/g" dmoj/settings.py && \
-    sed -i "s/'compressor.contrib.jinja2ext.CompressorExtension',/# 'compressor.contrib.jinja2ext.CompressorExtension',/g" dmoj/settings.py && \
-    sed -i "s/django_compressor>=3/#django_compressor>=3/g" requirements.txt && \
-    sed -i "s/STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)/# STATICFILES_FINDERS += ('compressor.finders.CompressorFinder',)/g" dmoj/settings.py
+    sed -i "/'compressor.contrib.jinja2ext.CompressorExtension',/d" dmoj/settings.py && \
+    echo "STATIC_ROOT = '/app/static'" >> dmoj/settings.py && \
+    echo "COMPRESS_ROOT = '/app/static'" >> dmoj/settings.py && \
+    echo "COMPRESS_ENABLED = False" >> dmoj/settings.py
 
-# Tạo file patch_compressor.py để vô hiệu hóa compressor
-RUN echo 'import sys\nimport types\n\n# Tạo một module giả để thay thế compressor\nfake_compressor = types.ModuleType("compressor")\nfake_compressor.__path__ = []\nsys.modules["compressor"] = fake_compressor\n\n# Tạo các submodule cần thiết\nfake_templatetags = types.ModuleType("compressor.templatetags")\nsys.modules["compressor.templatetags"] = fake_templatetags\n\nfake_contrib = types.ModuleType("compressor.contrib")\nsys.modules["compressor.contrib"] = fake_contrib\n\nfake_jinja2ext = types.ModuleType("compressor.contrib.jinja2ext")\nsys.modules["compressor.contrib.jinja2ext"] = fake_jinja2ext\n\n# Tạo các hàm giả\nclass DummyCompressNode:\n    def __init__(self, *args, **kwargs):\n        pass\n    \n    def render(self, context):\n        return ""\n\nfake_templatetags.compress = types.ModuleType("compressor.templatetags.compress")\nsys.modules["compressor.templatetags.compress"] = fake_templatetags.compress\nfake_templatetags.compress.CompressNode = DummyCompressNode\n\nclass DummyCompressorExtension:\n    def __init__(self, *args, **kwargs):\n        pass\n\nfake_jinja2ext.CompressorExtension = DummyCompressorExtension\n\nprint("Django compressor đã được vô hiệu hóa thành công!")\n' > /app/patch_compressor.py
+# Tạo file local_settings.py nếu chưa có
+RUN echo "DEBUG = True" > dmoj/local_settings.py && \
+    echo "ALLOWED_HOSTS = ['*']" >> dmoj/local_settings.py && \
+    echo "DATABASES = {'default': {'ENGINE': 'django.db.backends.mysql', 'NAME': 'dmoj', 'USER': 'dmoj', 'PASSWORD': 'dmojpass', 'HOST': 'db'}}" >> dmoj/local_settings.py && \
+    echo "CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache', 'LOCATION': 'redis://redis:6379/1'}}" >> dmoj/local_settings.py && \
+    echo "SESSION_ENGINE = 'django.contrib.sessions.backends.cache'" >> dmoj/local_settings.py
 
-# Thiết lập PYTHONSTARTUP để tải patch_compressor.py trước khi Django khởi động
-ENV PYTHONSTARTUP=/app/patch_compressor.py
-
-# Sao chép file cấu hình
-COPY docker/site/local_settings.py /app/dmoj/
-COPY docker/site/uwsgi.ini /app/
-
-# Cài đặt các phụ thuộc Python
-RUN pip install --no-cache-dir -r requirements.txt
-RUN MYSQLCLIENT_CFLAGS="-I/usr/include/mariadb" MYSQLCLIENT_LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lmariadb" pip install --no-cache-dir mysqlclient
-RUN pip install --no-cache-dir uwsgi
-
-# Cài đặt các phụ thuộc Node.js
-RUN cd websocket && npm install qu ws simplesets
-RUN pip install --no-cache-dir websocket-client
-
-# Tạo file cấu hình websocket
-RUN echo 'module.exports = { \
-    get_host: "0.0.0.0", \
-    get_port: 15100, \
-    post_host: "0.0.0.0", \
-    post_port: 15101, \
-    http_host: "0.0.0.0", \
-    http_port: 15102, \
-    long_poll_timeout: 29000, \
-};' > websocket/config.js
-
-# Biên dịch tài nguyên tĩnh
-RUN ./make_style.sh
-
-# Thu thập static files và biên dịch translations
-RUN python manage.py collectstatic --noinput || echo "Không thể thu thập static files, tiếp tục..."
-RUN python manage.py compilemessages || echo "Không thể biên dịch messages, tiếp tục..."
-RUN python manage.py compilejsi18n || echo "Không thể biên dịch jsi18n, tiếp tục..."
+# Sao chép script startup
+COPY docker/site/start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Mở cổng
-EXPOSE 8000 9999 15100 15101 15102 
+EXPOSE 8000 9998 9999
+
+# Thiết lập entrypoint
+CMD ["/start.sh"] 

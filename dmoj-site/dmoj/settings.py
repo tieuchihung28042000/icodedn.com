@@ -272,7 +272,6 @@ INSTALLED_APPS += (
     'reversion',
     'django_social_share',
     'social_django',
-    'compressor',
     'django_ace',
     'sortedm2m',
     'statici18n',
@@ -280,6 +279,7 @@ INSTALLED_APPS += (
     'django_jinja',
     'martor',
     'adminsortable2',
+    'compressor',
 )
 
 MIDDLEWARE = (
@@ -556,6 +556,7 @@ DMOJ_RESOURCES = os.path.join(BASE_DIR, 'resources')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
 )
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'resources'),
@@ -624,3 +625,23 @@ if DMOJ_PDF_PDFOID_URL:
 # Compute these values after local_settings.py is loaded
 ACE_DEFAULT_LIGHT_THEME = DMOJ_THEME_DEFAULT_ACE_THEME['light']
 ACE_DEFAULT_DARK_THEME = DMOJ_THEME_DEFAULT_ACE_THEME['dark']
+
+# Đảm bảo luôn có cache default đúng chuẩn
+if 'CACHES' not in locals() or 'default' not in CACHES:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://redis:6379/1',
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+        }
+    }
+
+COMPRESS_ROOT = os.path.join(BASE_DIR, 'static')
+COMPRESS_URL = STATIC_URL
+COMPRESS_ENABLED = False
+
+JINJA2_EXTENSIONS = [
+    'compressor.contrib.jinja2ext.CompressorExtension',
+]

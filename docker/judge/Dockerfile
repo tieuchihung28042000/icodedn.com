@@ -7,17 +7,23 @@ RUN apt-get update && apt-get install -y \
     openjdk-17-jdk-headless \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Tạo user không có quyền root
+RUN useradd -m -s /bin/bash dmoj
+
 # Cài đặt DMOJ judge từ PyPI
 RUN pip install wheel && \
     pip install dmoj
 
-# Tạo thư mục cho bài tập
-RUN mkdir -p /problems
+# Tạo thư mục cho bài tập và cấp quyền
+RUN mkdir -p /problems && chown dmoj:dmoj /problems
 
 # Sao chép file cấu hình
 COPY docker/judge/judge.yml /problems/judge.yml
 COPY docker/judge/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown dmoj:dmoj /problems/judge.yml
+
+# Chuyển sang user dmoj
+USER dmoj
 
 # Khởi chạy
 ENTRYPOINT ["/entrypoint.sh"] 

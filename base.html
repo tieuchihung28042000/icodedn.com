@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <title>{% block title %}DMOJ{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ static("style.css") }}">
+    <link rel="stylesheet" href="{{ static("navbar.css") }}">
+    <link rel="stylesheet" href="{{ static("style-fix.css") }}">
+    <script src="{{ static("common.js") }}"></script>
+    {% block media %}{% endblock %}
+</head>
+<body>
+    <nav id="nav-container">
+        <ul>
+            <li class="home-nav-element"><a href="{{ url("home") }}">DMOJ</a></li>
+            <li><a href="{{ url("problem_list") }}">Problems</a></li>
+            <li><a href="{{ url("status_all") }}">Submissions</a></li>
+            <li><a href="{{ url("user_list") }}">Users</a></li>
+            <li><a href="{{ url("contest_list") }}">Contests</a></li>
+            <li><a href="{{ url("home") }}">About</a></li>
+            {% if request.user.is_authenticated %}
+                <li style="float: right"><a href="{{ url("user_page") }}">{{ request.user.username }}</a></li>
+            {% else %}
+                <li style="float: right"><a href="{{ url("auth_login") }}">Login</a></li>
+                <li style="float: right"><a href="{{ url("registration_register") }}">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div id="content">
+        <div id="content-body">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+    <footer>
+        <p>Proudly powered by DMOJ</p>
+    </footer>
+</body>
+</html>

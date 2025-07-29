@@ -2,41 +2,7 @@ services:
   site:
     environment:
       - DEBUG=True
-      - PYTHONSTARTUP=/app/patch_compressor.py
     volumes:
       - ./dmoj-site:/app
     ports:
-      - "8000:8000"
-      - "9998:9998"
-      - "9999:9999"
-      - "15100:15100"
-      - "15101:15101"
-      - "15102:15102"
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-  bridged:
-    volumes:
-      - ./dmoj-site:/app
-    environment:
-      - PYTHONSTARTUP=/app/patch_compressor.py
-
-  celery:
-    volumes:
-      - ./dmoj-site:/app
-    environment:
-      - PYTHONSTARTUP=/app/patch_compressor.py
-
-  wsevent:
-    volumes:
-      - ./dmoj-site:/app
-    environment:
-      - PYTHONSTARTUP=/app/patch_compressor.py
-    ports:
-      - "15100:15100"
-      - "15101:15101"
-      - "15102:15102"
-
-  judge:
-    build:
-      args:
-        CACHEBUST: "${RANDOM:-1}" 
+      - "8000:8000" 

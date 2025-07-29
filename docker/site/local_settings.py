@@ -1,46 +1,43 @@
 import os
 from django.utils.translation import gettext_lazy as _
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'dmoj_docker_secret_key_change_in_production')
+# Vô hiệu hóa compressor
+INSTALLED_APPS = [app for app in INSTALLED_APPS if app != 'compressor']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# Cấu hình đường dẫn static
+STATIC_ROOT = '/app/static'
+COMPRESS_ROOT = '/app/static'
+
+# Cấu hình debug
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
-# Database
+# Cấu hình cơ sở dữ liệu
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.environ.get('MYSQL_DATABASE', 'dmoj'),
-        'USER': os.environ.get('MYSQL_USER', 'dmoj'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'dmojpass'),
-        'HOST': os.environ.get('MYSQL_HOST', 'db'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'sql_mode': 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION',
-        },
+        'NAME': 'dmoj',
+        'USER': 'dmoj',
+        'PASSWORD': 'dmojpass',
+        'HOST': 'db',
+        'PORT': '3306',
     }
 }
 
-# Caches and sessions
+# Cấu hình Redis
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/1",
+        'LOCATION': 'redis://redis:6379/1',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+        },
     }
 }
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
 
-# Celery
-CELERY_BROKER_URL = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
-CELERY_RESULT_BACKEND = f"redis://{os.environ.get('REDIS_HOST', 'redis')}:6379/0"
-
-# Email
+# Cấu hình email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization
@@ -51,7 +48,6 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files
-STATIC_ROOT = '/app/static'
 STATIC_URL = '/static/'
 MEDIA_ROOT = '/app/media'
 MEDIA_URL = '/media/'

@@ -1,6 +1,26 @@
 #!/bin/bash
 set -e
 
+# Tạo file judge.yml nếu chưa có
+if [ ! -f /problems/judge.yml ]; then
+    echo "Tạo file judge.yml..."
+    cat > /problems/judge.yml << EOF
+id: judge1
+key: verysecretkey
+problem_storage_globs:
+  - /problems/*
+
+runtime:
+  gcc: /usr/bin/gcc
+  g++: /usr/bin/g++
+  g++11: /usr/bin/g++
+  python: /usr/bin/python3
+  python3: /usr/bin/python3
+  java: /usr/bin/java
+  javac: /usr/bin/javac
+EOF
+fi
+
 # Sử dụng biến môi trường để cấu hình judge
 if [ ! -z "$JUDGE_NAME" ]; then
     sed -i "s/^id:.*$/id: $JUDGE_NAME/" /problems/judge.yml

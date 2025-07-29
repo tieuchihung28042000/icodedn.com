@@ -43,22 +43,20 @@
     {% if not INLINE_FONTAWESOME %}
         <link rel="stylesheet" href="{{ FONTAWESOME_CSS }}">
     {% endif %}
-    {% compress css %}
-        {# TODO: once dark mode support is better, enable for all users by deleting the else branch #}
-        {% if perms.judge.test_site %}
-            {% if PREFERRED_STYLE_CSS is not none %}
-                <link rel="stylesheet" href="{{ static(PREFERRED_STYLE_CSS) }}">
-            {% else %}
-                <link rel="stylesheet" href="{{ static(LIGHT_STYLE_CSS) }}">
-                <link rel="stylesheet" href="{{ static(DARK_STYLE_CSS) }}" media="(prefers-color-scheme: dark)">
-            {% endif %}
-        {% else %}
-            <link rel="stylesheet" href="{{ static(LIGHT_STYLE_CSS) }}">
-        {% endif %}
-        {% if INLINE_FONTAWESOME %}<link rel="stylesheet" href="{{ static('libs/fontawesome/font-awesome.css') }}">{% endif %}
-        <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
-        <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
-    {% endcompress %}
+    <link rel="stylesheet" href="{{ static('style.css') }}">
+    <link rel="stylesheet" href="{{ static('base.css') }}">
+    <link rel="stylesheet" href="{{ static('navbar.css') }}">
+    <link rel="stylesheet" href="{{ static('blog.css') }}">
+    <link rel="stylesheet" href="{{ static('problem.css') }}">
+    <link rel="stylesheet" href="{{ static('users.css') }}">
+    <link rel="stylesheet" href="{{ static('contest.css') }}">
+    <link rel="stylesheet" href="{{ static('submission.css') }}">
+    <link rel="stylesheet" href="{{ static('dmoj.css') }}">
+    <link rel="stylesheet" href="{{ static('ranks.css') }}">
+    <link rel="stylesheet" href="{{ static('table.css') }}">
+    {% if INLINE_FONTAWESOME %}<link rel="stylesheet" href="{{ static('libs/fontawesome/font-awesome.css') }}">{% endif %}
+    <link rel="stylesheet" type="text/css" href="{{ static('libs/clipboard/tooltip.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ static('libs/select2/select2.css') }}">
     <link rel="canonical"
           href="{{ DMOJ_SCHEME }}://{{ DMOJ_CANONICAL|default(site.domain) }}{{ request.get_full_path() }}">
     {% if request.user.is_impersonate %}
@@ -73,26 +71,23 @@
         <script src="{{ JQUERY_JS }}"></script>
     {% endif %}
 
-    {% compress js %}
-        <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
-        {% if INLINE_JQUERY %}
-            <script src="{{ static('libs/jquery-3.4.1.min.js') }}"></script>
-        {% endif %}
-        <script src="{{ static('libs/jquery-cookie.js') }}"></script>
-        <script src="{{ static('libs/jquery-taphold.js') }}"></script>
-        <script src="{{ static('libs/jquery.unveil.js') }}"></script>
-        <script src="{{ static('libs/moment.js') }}"></script>
-        <script src="{{ static('libs/select2/select2.js') }}"></script>
-        {% include "extra_js.html" %}
-        <script src="{{ static('common.js') }}"></script>
-        <script>
-            moment.locale('{{ LANGUAGE_CODE }}');
-            set_date_locale('{{ LANGUAGE_CODE }}');
-            $(function () {
-                $('img.unveil').unveil(200);
-            });
-        </script>
-    {% endcompress %}
+    <script>{{ inlinei18n(LANGUAGE_CODE)|safe }}</script>
+    {% if INLINE_JQUERY %}
+        <script src="{{ static('libs/jquery/jquery-3.4.1.min.js') }}"></script>
+    {% endif %}
+    <script src="{{ static('libs/jquery/jquery-cookie.js') }}"></script>
+    <script src="{{ static('libs/jquery/jquery-taphold.js') }}"></script>
+    <script src="{{ static('libs/jquery/jquery.unveil.js') }}"></script>
+    <script src="{{ static('libs/moment.js') }}"></script>
+    <script src="{{ static('libs/select2/select2.js') }}"></script>
+    <script src="{{ static('common.js') }}"></script>
+    <script>
+        moment.locale('{{ LANGUAGE_CODE }}');
+        set_date_locale('{{ LANGUAGE_CODE }}');
+        $(function () {
+            $('img.unveil').unveil(200);
+        });
+    </script>
     {% block js_media %}{% endblock %}
     {% if request.in_contest %}
         <script>$(function () {
@@ -188,22 +183,14 @@
     <div id="nav-container">
         <a id="navicon" href="javascript:void(0)"><i class="fa fa-bars"></i></a>
         <ul id="nav-list">
-            <li class="home-nav-element"><a href="{{ url('home') }}">{% include "site-logo-fragment.html" %}</a></li>
+            <li class="home-nav-element"><a href="{{ url('home') }}">DMOJ</a></li>
             <li class="home-nav-element"><span class="nav-divider"></span></li>
             <li class="home-menu-item"><a href="{{ url('home') }}" class="nav-home">{{ _('Home') }}</a></li>
-            {% for node in mptt_tree(nav_bar) recursive %}
-                <li>
-                    <a href="{{ node.path }}" class="nav-{{ node.key }}{% if node.key in nav_tab %} active{% endif %}">
-                        {{ user_trans(node.label) }}
-                        {% if not node.is_leaf_node() %}
-                            <div class="nav-expand">&gt;</div>
-                        {% endif %}
-                    </a>
-                    {% with children=node.get_children() %}
-                        {% if children %}<ul>{{ loop(children) }}</ul>{% endif %}
-                    {% endwith %}
-                </li>
-            {% endfor %}
+            <li><a href="{{ url('problem_list') }}" class="nav-problems">{{ _('Problems') }}</a></li>
+            <li><a href="{{ url('status_all') }}" class="nav-status">{{ _('Submissions') }}</a></li>
+            <li><a href="{{ url('user_list') }}" class="nav-users">{{ _('Users') }}</a></li>
+            <li><a href="{{ url('contest_list') }}" class="nav-contests">{{ _('Contests') }}</a></li>
+            <li><a href="{{ url('home') }}" class="nav-about">{{ _('About') }}</a></li>
         </ul>
 
         <span id="user-links">
